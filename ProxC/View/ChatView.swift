@@ -30,10 +30,14 @@ struct ChatView: View {
 
                 Spacer()
 
-                Button("End Chat") {
+                Button(action: {
                     showEndChatConfirmation = true
+                }) {
+                    Text("End Chat")
+                        .fontWeight(.medium)
                 }
-                .foregroundColor(.red)
+                .buttonStyle(.bordered)
+                .tint(.red)
             }
             .padding(.horizontal)
             .padding(.vertical, 12)
