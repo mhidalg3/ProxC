@@ -1,0 +1,16 @@
+.DS_Store
+build/
+DerivedData/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+xcuserdata/
+
+.build/
+Packages/
+Package.resolved
+
+Pods/
+Carthage/Build/
+
+*.env

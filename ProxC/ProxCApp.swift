@@ -7,11 +7,15 @@
 
 import SwiftUI
 
+// ProxCApp.swift
 @main
 struct ProxCApp: App {
+    @StateObject private var bluetoothManager = BluetoothManager()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContactsView()
+                .environmentObject(bluetoothManager)
         }
     }
 }
+

@@ -7,18 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AD5DE40D2C88DA5E0059E530 /* ProxCApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD5DE40C2C88DA5E0059E530 /* ProxCApp.swift */; };
-		AD5DE40F2C88DA5E0059E530 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD5DE40E2C88DA5E0059E530 /* ContentView.swift */; };
-		AD5DE4112C88DA5F0059E530 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD5DE4102C88DA5F0059E530 /* Assets.xcassets */; };
-		AD5DE4142C88DA5F0059E530 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD5DE4132C88DA5F0059E530 /* Preview Assets.xcassets */; };
+		ADA2FCC52C913BA400B4C86C /* ProxCApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC42C913BA400B4C86C /* ProxCApp.swift */; };
+		ADA2FCC82C91F96300B4C86C /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC12C9132C500B4C86C /* ContactsView.swift */; };
+		ADA2FCCA2C91F97600B4C86C /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC92C91F97600B4C86C /* BluetoothManager.swift */; };
+		ADA2FCCB2C91F97A00B4C86C /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC22C9132C500B4C86C /* MessageBubble.swift */; };
+		ADA2FCCC2C91F97B00B4C86C /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC32C9132C500B4C86C /* ChatView.swift */; };
+		ADA2FCCE2C91F9A800B4C86C /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCCD2C91F9A800B4C86C /* Message.swift */; };
+		ADD1BBB42F324F1000551CAE /* BLEProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADD1BBB32F324F1000551CAE /* BLEProtocol.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		AD5DE4092C88DA5E0059E530 /* ProxC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProxC.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AD5DE40C2C88DA5E0059E530 /* ProxCApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxCApp.swift; sourceTree = "<group>"; };
-		AD5DE40E2C88DA5E0059E530 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		AD5DE4102C88DA5F0059E530 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AD5DE4132C88DA5F0059E530 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		ADA2FCC12C9132C500B4C86C /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
+		ADA2FCC22C9132C500B4C86C /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
+		ADA2FCC32C9132C500B4C86C /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		ADA2FCC42C913BA400B4C86C /* ProxCApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProxCApp.swift; sourceTree = "<group>"; };
+		ADA2FCC92C91F97600B4C86C /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
+		ADA2FCCD2C91F9A800B4C86C /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		ADA2FCCF2C91FA8C00B4C86C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		ADD1BBB32F324F1000551CAE /* BLEProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEProtocol.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,20 +58,40 @@
 		AD5DE40B2C88DA5E0059E530 /* ProxC */ = {
 			isa = PBXGroup;
 			children = (
-				AD5DE40C2C88DA5E0059E530 /* ProxCApp.swift */,
-				AD5DE40E2C88DA5E0059E530 /* ContentView.swift */,
-				AD5DE4102C88DA5F0059E530 /* Assets.xcassets */,
-				AD5DE4122C88DA5F0059E530 /* Preview Content */,
+				ADA2FCC42C913BA400B4C86C /* ProxCApp.swift */,
+				ADA2FCCF2C91FA8C00B4C86C /* Info.plist */,
+				ADA2FCD02C91FB5700B4C86C /* View */,
+				ADA2FCD32C91FBB300B4C86C /* BlueManager */,
+				ADA2FCD42C91FBD800B4C86C /* Model */,
 			);
 			path = ProxC;
 			sourceTree = "<group>";
 		};
-		AD5DE4122C88DA5F0059E530 /* Preview Content */ = {
+		ADA2FCD02C91FB5700B4C86C /* View */ = {
 			isa = PBXGroup;
 			children = (
-				AD5DE4132C88DA5F0059E530 /* Preview Assets.xcassets */,
+				ADA2FCC22C9132C500B4C86C /* MessageBubble.swift */,
+				ADA2FCC32C9132C500B4C86C /* ChatView.swift */,
+				ADA2FCC12C9132C500B4C86C /* ContactsView.swift */,
 			);
-			path = "Preview Content";
+			path = View;
+			sourceTree = "<group>";
+		};
+		ADA2FCD32C91FBB300B4C86C /* BlueManager */ = {
+			isa = PBXGroup;
+			children = (
+				ADA2FCC92C91F97600B4C86C /* BluetoothManager.swift */,
+				ADD1BBB32F324F1000551CAE /* BLEProtocol.swift */,
+			);
+			path = BlueManager;
+			sourceTree = "<group>";
+		};
+		ADA2FCD42C91FBD800B4C86C /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				ADA2FCCD2C91F9A800B4C86C /* Message.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -99,6 +126,7 @@
 				TargetAttributes = {
 					AD5DE4082C88DA5E0059E530 = {
 						CreatedOnToolsVersion = 15.2;
+						LastSwiftMigration = 1520;
 					};
 				};
 			};
@@ -125,8 +153,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD5DE4142C88DA5F0059E530 /* Preview Assets.xcassets in Resources */,
-				AD5DE4112C88DA5F0059E530 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,8 +163,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD5DE40F2C88DA5E0059E530 /* ContentView.swift in Sources */,
-				AD5DE40D2C88DA5E0059E530 /* ProxCApp.swift in Sources */,
+				ADA2FCC52C913BA400B4C86C /* ProxCApp.swift in Sources */,
+				ADA2FCCA2C91F97600B4C86C /* BluetoothManager.swift in Sources */,
+				ADD1BBB42F324F1000551CAE /* BLEProtocol.swift in Sources */,
+				ADA2FCCC2C91F97B00B4C86C /* ChatView.swift in Sources */,
+				ADA2FCCE2C91F9A800B4C86C /* Message.swift in Sources */,
+				ADA2FCC82C91F96300B4C86C /* ContactsView.swift in Sources */,
+				ADA2FCCB2C91F97A00B4C86C /* MessageBubble.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,11 +300,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ProxC/Preview Content\"";
+				DEVELOPMENT_TEAM = 3MM8QQ823P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ProxC/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "his app needs Bluetooth access to discover and communicate with nearby devices.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to communicate with other devices.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -287,6 +323,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = applicationManuel.ProxC;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -297,11 +334,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"ProxC/Preview Content\"";
+				DEVELOPMENT_TEAM = 3MM8QQ823P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ProxC/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "his app needs Bluetooth access to discover and communicate with nearby devices.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app uses Bluetooth to communicate with other devices.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
