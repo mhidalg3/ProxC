@@ -40,6 +40,7 @@ class BluetoothManager: NSObject, ObservableObject {
     @Published var responseStatusMessage: String = ""
     @Published var messages: [Message] = []
     @Published var ison = 0
+    @Published var remoteChatEnded = false  // Set when remote device terminates chat
     //var viewModel: ContactsViewModel
     //var chatModel: ChatView
     
@@ -63,6 +64,7 @@ class BluetoothManager: NSObject, ObservableObject {
     private var didSendConnectionRequest = false
     private var responseNotifyEnabled = false
     private var serviceDiscoveryRetries: [UUID: Int] = [:]
+    private var userInitiatedDisconnect = false  // Track if WE initiated the disconnect
 
     // Deleted these lines per instructions:
     // private var conversationId = UUID()
@@ -281,12 +283,16 @@ class BluetoothManager: NSObject, ObservableObject {
                 peripheral.writeValue(data, for: chatChar, type: .withResponse)
                 print("Sent connectionTerminate packet to peripheral")
             }
+            // Mark that WE initiated this disconnect so we don't show "Chat ended" to ourselves
+            userInitiatedDisconnect = true
             // Cancel the BLE connection
             centralManager.cancelPeripheralConnection(peripheral)
             connectedPeripheral = nil
             connectionStatusMessage = "Terminated"
             cleanupSession()
         } else if let central = connectedCentral {
+            // Mark that WE initiated this termination so we don't show "Chat ended" to ourselves
+            userInitiatedDisconnect = true
             // Send terminate packet over chat characteristic (peripheral notifies)
             if let chatChar = chatCharacteristicOnPeripheral {
                 let pkt = Packet(type: .connectionTerminate,
@@ -324,6 +330,9 @@ class BluetoothManager: NSObject, ObservableObject {
         responseStatusMessage = ""
         // Clear messages per ephemeral chat requirement
         messages.removeAll()
+        // Note: remoteChatEnded and userInitiatedDisconnect are intentionally NOT reset here
+        // - remoteChatEnded: UI needs to see it first
+        // - userInitiatedDisconnect: used by didDisconnectPeripheral callback
     }
 
     // MARK: - Notifications
@@ -565,6 +574,7 @@ class BluetoothManager: NSObject, ObservableObject {
             case .connectionTerminate:
                 print("Received terminate packet (central). Cancelling connection")
                 connectionStatusMessage = "Terminated"
+                remoteChatEnded = true  // Signal to UI before cleanup
                 if let p = connectedPeripheral {
                     centralManager.cancelPeripheralConnection(p)
                     connectedPeripheral = nil
@@ -749,6 +759,18 @@ extension BluetoothManager: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         print("Disconnected from peripheral: \(peripheral.name ?? "Unknown Device"), Error: \(error?.localizedDescription ?? "No error")")
         connectionStatusMessage = "Disconnected from \(peripheral.name ?? "Unknown Device")"
+
+        // If WE didn't initiate this disconnect, it means the other device ended the chat
+        // Show the "Chat ended" notification (fallback in case termination packet wasn't received)
+        if !userInitiatedDisconnect && !remoteChatEnded {
+            print("Unexpected disconnect detected - other device likely ended chat")
+            remoteChatEnded = true
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .chatShouldDismiss, object: nil)
+            }
+        }
+        userInitiatedDisconnect = false  // Reset for next connection
+
         connectedPeripheral = nil
         restartDiscovery()
     }
@@ -927,6 +949,15 @@ extension BluetoothManager: CBPeripheralDelegate {
                 self.connectedCentral = nil
             }
             print("Central unsubscribed from chat notifications: \(central.identifier)")
+
+            // If WE didn't initiate this termination, it means the other device ended the chat
+            // Show the "Chat ended" notification (fallback in case termination packet wasn't received)
+            if !userInitiatedDisconnect && !remoteChatEnded {
+                print("Unexpected unsubscribe detected - other device likely ended chat")
+                remoteChatEnded = true
+            }
+            userInitiatedDisconnect = false  // Reset for next connection
+
             self.cleanupSession()
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .chatShouldDismiss, object: nil)
@@ -1002,6 +1033,7 @@ extension BluetoothManager: CBPeripheralDelegate {
                             }
                         case .connectionTerminate:
                             print("Received termination packet from central")
+                            self.remoteChatEnded = true  // Signal to UI before cleanup
                             // Peripheral cannot cancel the connection directly; central will typically cancel.
                             self.cleanupAfterDisconnect()
                             self.restartDiscovery()
@@ -1107,6 +1139,11 @@ extension BluetoothManager {
         }
         respondToConnectionRequest(accepted: false)
         connectionStatusMessage = "Rejected connection request from \(central.identifier.uuidString)"
+    }
+
+    /// Call this after showing the "Chat ended" notification to reset the flag
+    func acknowledgeRemoteChatEnded() {
+        remoteChatEnded = false
     }
 }
 

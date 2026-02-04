@@ -91,9 +91,13 @@ struct ContactsView: View {
             }
             .sheet(isPresented: $viewModel.showingChat) {
                 if let connectedCentral = bluetoothManager.connectedCentral  {
-                    ChatView(central: connectedCentral, bluetoothManager: bluetoothManager)
+                    ChatView(central: connectedCentral, onEndChatConfirmed: {
+                        bluetoothManager.terminateSessionInitiatedByUser()
+                    }, bluetoothManager: bluetoothManager)
                 } else if let connectedPeripheral = bluetoothManager.connectedPeripheral {
-                    ChatView(contact: connectedPeripheral, bluetoothManager: bluetoothManager)
+                    ChatView(contact: connectedPeripheral, onEndChatConfirmed: {
+                        bluetoothManager.terminateSessionInitiatedByUser()
+                    }, bluetoothManager: bluetoothManager)
                 }
             }
             .onChange(of: viewModel.showingChat) { showing in
@@ -101,16 +105,7 @@ struct ContactsView: View {
                     // Chat is opening, record the time
                     viewModel.chatOpenedAt = Date()
                 } else {
-                    // User dismissed chat; terminate session on this device
-                    // But only if chat was open for at least 1 second (prevent race conditions)
-                    let wasOpenLongEnough = viewModel.chatOpenedAt == nil || 
-                        Date().timeIntervalSince(viewModel.chatOpenedAt!) > 1.0
-                    
-                    if wasOpenLongEnough {
-                        bluetoothManager.terminateSessionInitiatedByUser()
-                    } else {
-                        print("Chat dismissed too quickly after opening, not terminating")
-                    }
+                    // Chat closed - no automatic termination, user must confirm via End Chat button
                     viewModel.chatOpenedAt = nil
                 }
             }
@@ -119,12 +114,8 @@ struct ContactsView: View {
                     print("ContactsView: Detected Accepted status, opening chat")
                     viewModel.showingChat = true
                     viewModel.chatOpenedAt = Date()
-                } else if (status.contains("Terminated") || status.contains("Disconnected")) && viewModel.showingChat {
-                    // Only show termination alert if we were actually showing chat
-                    print("ContactsView: Detected termination while in chat, showing alert")
-                    viewModel.terminationMessage = "The chat session has ended."
-                    viewModel.showTerminationAlert = true
                 }
+                // Note: Termination is now handled via bluetoothManager.remoteChatEnded
             }
             .onChange(of: bluetoothManager.responseStatusMessage){
                 status in if status.contains("Accepted"){
@@ -136,6 +127,13 @@ struct ContactsView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: .chatShouldDismiss)) { _ in
                 viewModel.showingChat = false
+            }
+            .onChange(of: bluetoothManager.remoteChatEnded) { ended in
+                if ended {
+                    viewModel.terminationMessage = "The other device ended the chat."
+                    viewModel.showTerminationAlert = true
+                    bluetoothManager.acknowledgeRemoteChatEnded()
+                }
             }
             .alert("Chat Ended", isPresented: $viewModel.showTerminationAlert) {
                 Button("OK", role: .cancel) { }

@@ -9,43 +9,61 @@ import SwiftUI
 import CoreBluetooth // Import CoreBluetooth to recognize Bluetooth-related types like CBPeripheral
 
 struct ChatView: View {
-    //@State private var messages: [Message] = []
     @State private var currentMessage: String = ""
+    @State private var showEndChatConfirmation: Bool = false
+
     var contact: CBPeripheral? // The Bluetooth contact you are connected with
     var central: CBCentral?
-    
+    var onEndChatConfirmed: (() -> Void)?  // Callback when user confirms ending chat
+
     @ObservedObject var bluetoothManager: BluetoothManager
-     
-    
-   // func addMessage(_ message: Message) {
-   //         messages.append(message)  // Method to add a new message
-   //     }
-    
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
-        VStack {
-            ScrollView {
-                VStack(spacing: 10) {
-                    ForEach(bluetoothManager.messages) { message in
-                        MessageBubble(message: message)
+        NavigationView {
+            VStack {
+                ScrollView {
+                    VStack(spacing: 10) {
+                        ForEach(bluetoothManager.messages) { message in
+                            MessageBubble(message: message)
+                        }
                     }
                 }
+
+                HStack {
+                    TextField("Type a message...", text: $currentMessage)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(minHeight: 30)
+
+                    Button(action: sendMessage) {
+                        Image(systemName: "paperplane.fill")
+                            .foregroundColor(.blue)
+                            .padding(.horizontal, 10)
+                    }
+                }
+                .padding()
             }
-            
-            HStack {
-                TextField("Type a message...", text: $currentMessage)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(minHeight: 30)
-                
-                Button(action: sendMessage) {
-                    Image(systemName: "paperplane.fill")
-                        .foregroundColor(.blue)
-                        .padding(.horizontal, 10)
+            .navigationTitle(chatTitle())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("End Chat") {
+                        showEndChatConfirmation = true
+                    }
+                    .foregroundColor(.red)
                 }
             }
-            .padding()
+            .alert("End Chat?", isPresented: $showEndChatConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("End", role: .destructive) {
+                    onEndChatConfirmed?()
+                    dismiss()
+                }
+            } message: {
+                Text("Are you sure you want to end this chat?")
+            }
         }
-        .navigationTitle(chatTitle())
-        .navigationBarTitleDisplayMode(.inline)
+        .interactiveDismissDisabled(true)  // Prevent swipe-to-dismiss
     }
     
     func chatTitle() -> String {
