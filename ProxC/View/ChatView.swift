@@ -43,9 +43,18 @@ struct ChatView: View {
                 }
                 .padding()
             }
-            .navigationTitle(chatTitle())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack {
+                        Text(chatTitle())
+                            .font(.headline)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("End Chat") {
                         showEndChatConfirmation = true
@@ -67,10 +76,13 @@ struct ChatView: View {
     }
     
     func chatTitle() -> String {
-        if let contact = contact {
+        // Use connectedDeviceName if available (set from connection request payload)
+        if let deviceName = bluetoothManager.connectedDeviceName, !deviceName.isEmpty {
+            return "Chat with \(deviceName)"
+        } else if let contact = contact {
             return "Chat with \(contact.name ?? "Unknown Device")"  // If connected to peripheral
         } else if let central = central {
-            return "Chat with Central: \(central.identifier.uuidString)"  // If connected to central
+            return "Chat with \(central.identifier.uuidString.prefix(8))..."  // If connected to central (shortened UUID)
         } else {
             return "Chat"  // Fallback in case neither is set
         }

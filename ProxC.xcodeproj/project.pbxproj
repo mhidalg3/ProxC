@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AD6756952F33D049002F884C /* DisplayNameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6756942F33D049002F884C /* DisplayNameManager.swift */; };
+		AD6756972F33D0AE002F884C /* DisplayNameSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6756962F33D0AE002F884C /* DisplayNameSettingsView.swift */; };
 		ADA2FCC52C913BA400B4C86C /* ProxCApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC42C913BA400B4C86C /* ProxCApp.swift */; };
 		ADA2FCC82C91F96300B4C86C /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC12C9132C500B4C86C /* ContactsView.swift */; };
 		ADA2FCCA2C91F97600B4C86C /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA2FCC92C91F97600B4C86C /* BluetoothManager.swift */; };
@@ -18,6 +20,8 @@
 
 /* Begin PBXFileReference section */
 		AD5DE4092C88DA5E0059E530 /* ProxC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProxC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD6756942F33D049002F884C /* DisplayNameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayNameManager.swift; sourceTree = "<group>"; };
+		AD6756962F33D0AE002F884C /* DisplayNameSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayNameSettingsView.swift; sourceTree = "<group>"; };
 		ADA2FCC12C9132C500B4C86C /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
 		ADA2FCC22C9132C500B4C86C /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
 		ADA2FCC32C9132C500B4C86C /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -70,6 +74,7 @@
 		ADA2FCD02C91FB5700B4C86C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				AD6756962F33D0AE002F884C /* DisplayNameSettingsView.swift */,
 				ADA2FCC22C9132C500B4C86C /* MessageBubble.swift */,
 				ADA2FCC32C9132C500B4C86C /* ChatView.swift */,
 				ADA2FCC12C9132C500B4C86C /* ContactsView.swift */,
@@ -89,6 +94,7 @@
 		ADA2FCD42C91FBD800B4C86C /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				AD6756942F33D049002F884C /* DisplayNameManager.swift */,
 				ADA2FCCD2C91F9A800B4C86C /* Message.swift */,
 			);
 			path = Model;
@@ -168,6 +174,8 @@
 				ADD1BBB42F324F1000551CAE /* BLEProtocol.swift in Sources */,
 				ADA2FCCC2C91F97B00B4C86C /* ChatView.swift in Sources */,
 				ADA2FCCE2C91F9A800B4C86C /* Message.swift in Sources */,
+				AD6756972F33D0AE002F884C /* DisplayNameSettingsView.swift in Sources */,
+				AD6756952F33D049002F884C /* DisplayNameManager.swift in Sources */,
 				ADA2FCC82C91F96300B4C86C /* ContactsView.swift in Sources */,
 				ADA2FCCB2C91F97A00B4C86C /* MessageBubble.swift in Sources */,
 			);

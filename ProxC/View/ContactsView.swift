@@ -31,8 +31,16 @@ struct ContactsView: View {
     @StateObject var viewModel = ContactsViewModel()
     @EnvironmentObject var bluetoothManager: BluetoothManager
     @State private var selectedContact: CBPeripheral?
-    
-    
+    @State private var showingSettings: Bool = false
+
+    private func connectionRequestMessage() -> String {
+        if let deviceName = bluetoothManager.connectedDeviceName, !deviceName.isEmpty {
+            return "\(deviceName) wants to connect with you."
+        } else {
+            return "A nearby device wants to connect with you."
+        }
+    }
+
     var body: some View {
         NavigationView {
             VStack {
@@ -50,7 +58,7 @@ struct ContactsView: View {
                                     bluetoothManager.connectToPeripheral(peripheral)
                                 }) {
                                     HStack {
-                                        Text(peripheral.name ?? "Unknown Device")
+                                        Text(bluetoothManager.displayName(for: peripheral))
                                             .foregroundColor(.black)
                                         Spacer()
                                         Image(systemName: "chevron.right")
@@ -69,16 +77,30 @@ struct ContactsView: View {
                 }
             }
             .navigationTitle("Nearby Devices")
-            .navigationBarItems(trailing: Button(action: {
-                bluetoothManager.stopScan()
-                bluetoothManager.startScan()
-            }) {
-                Image(systemName: "arrow.clockwise")
-            })
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "gearshape")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        bluetoothManager.stopScan()
+                        bluetoothManager.startScan()
+                    }) {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSettings) {
+                DisplayNameSettingsView()
+            }
             .alert(isPresented: $bluetoothManager.showAlert) {
                 Alert(
                     title: Text("Connection Request"),
-                    message: Text("Do you want to accept the connection request?"),
+                    message: Text(connectionRequestMessage()),
                     primaryButton: .default(Text("Accept")) {
                         bluetoothManager.acceptConnectionRequest()
                         print("Accept tapped; sending Accepted response")

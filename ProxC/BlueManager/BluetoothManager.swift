@@ -41,6 +41,8 @@ class BluetoothManager: NSObject, ObservableObject {
     @Published var messages: [Message] = []
     @Published var ison = 0
     @Published var remoteChatEnded = false  // Set when remote device terminates chat
+    @Published var connectedDeviceName: String?  // Name of the connected device (for display)
+    @Published var peripheralAdvertisedNames: [UUID: String] = [:]  // Stores advertised names for discovered peripherals
     //var viewModel: ContactsViewModel
     //var chatModel: ChatView
     
@@ -184,16 +186,19 @@ class BluetoothManager: NSObject, ObservableObject {
         print("attempting transition")
         // Generate a new conversation ID for this session
         currentConversationId = UUID()
+        // Include display name in payload so peripheral can display it
+        let displayName = DisplayNameManager.shared.nameForBLE
+        let payload = displayName.data(using: .utf8) ?? Data()
         let packet = Packet(type: .connectionRequest,
                             conversationId: currentConversationId,
                             messageId: 0,
                             fragmentIndex: 0,
                             fragmentCount: 1,
-                            payload: Data())
+                            payload: payload)
         if let characteristic = requestWriteCharacteristic {
             let data = packet.encode()
             peripheral.writeValue(data, for: characteristic, type: .withResponse)
-            print("Connection request (packet) sent to peripheral with conversationId: \(currentConversationId)")
+            print("Connection request (packet) sent to peripheral with conversationId: \(currentConversationId), displayName: \(displayName)")
         } else {
             print("Request write characteristic not set")
         }
@@ -212,7 +217,7 @@ class BluetoothManager: NSObject, ObservableObject {
         if servicesAdded && requestWriteCharacteristicPeripheral != nil {
             print("Service already added; restarting advertising only")
             peripheralManager.startAdvertising([
-                CBAdvertisementDataLocalNameKey: "ProxC User",
+                CBAdvertisementDataLocalNameKey: DisplayNameManager.shared.nameForBLE,
                 CBAdvertisementDataServiceUUIDsKey: [BluetoothConstants.serviceUUID]
             ])
             return
@@ -328,6 +333,8 @@ class BluetoothManager: NSObject, ObservableObject {
         // Reset status messages so onChange can fire on next connection
         connectionStatusMessage = ""
         responseStatusMessage = ""
+        // Clear connected device name
+        connectedDeviceName = nil
         // Clear messages per ephemeral chat requirement
         messages.removeAll()
         // Note: remoteChatEnded and userInitiatedDisconnect are intentionally NOT reset here
@@ -722,10 +729,17 @@ extension BluetoothManager: CBCentralManagerDelegate {
     
     // Discovered peripheral
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+        // Capture the advertised local name (this is the display name set by the other device)
+        if let advertisedName = advertisementData[CBAdvertisementDataLocalNameKey] as? String {
+            peripheralAdvertisedNames[peripheral.identifier] = advertisedName
+            print("Advertised local name: \(advertisedName)")
+        }
+
         // Avoid duplicates
         if !discoveredDevices.contains(where: { $0.identifier == peripheral.identifier }) {
             discoveredDevices.append(peripheral)
-            print("Discovered peripheral: \(peripheral.name ?? "Unknown Device")")
+            let displayName = peripheralAdvertisedNames[peripheral.identifier] ?? peripheral.name ?? "Unknown Device"
+            print("Discovered peripheral: \(displayName)")
             if let isConnectable = advertisementData[CBAdvertisementDataIsConnectable] as? Bool {
                 print("isConnectable: \(isConnectable)")
             }
@@ -738,6 +752,8 @@ extension BluetoothManager: CBCentralManagerDelegate {
         print("Connected to peripheral: \(peripheral.name ?? "Unknown Device")")
         // do we need below?
         connectedPeripheral = peripheral
+        // Store the peripheral's device name for display (prefer advertised name)
+        connectedDeviceName = peripheralAdvertisedNames[peripheral.identifier] ?? peripheral.name
         resetServiceDiscoveryRetries(for: peripheral)
         didSendConnectionRequest = false
         responseNotifyEnabled = false
@@ -892,7 +908,7 @@ extension BluetoothManager: CBPeripheralDelegate {
         // Ensure advertising is running after restoration
         if !peripheral.isAdvertising {
             peripheral.startAdvertising([
-                CBAdvertisementDataLocalNameKey: "ProxC User",
+                CBAdvertisementDataLocalNameKey: DisplayNameManager.shared.nameForBLE,
                 CBAdvertisementDataServiceUUIDsKey: [BluetoothConstants.serviceUUID]
             ])
         }
@@ -981,7 +997,13 @@ extension BluetoothManager: CBPeripheralDelegate {
                     if let packet = Packet.decode(requestData), packet.type == .connectionRequest {
                         // Establish conversationId from central's request
                         self.currentConversationId = packet.conversationId
-                        print("Received connection request (packet) with conversationId: \(packet.conversationId)")
+                        // Extract device name from payload if present
+                        if let deviceName = String(data: packet.payload, encoding: .utf8), !deviceName.isEmpty {
+                            self.connectedDeviceName = deviceName
+                            print("Received connection request (packet) with conversationId: \(packet.conversationId), deviceName: \(deviceName)")
+                        } else {
+                            print("Received connection request (packet) with conversationId: \(packet.conversationId)")
+                        }
                     } else if let message = String(data: requestData, encoding: .utf8) {
                         // Legacy path
                         print("Received connection request: \(message)")
@@ -1101,14 +1123,14 @@ extension BluetoothManager: CBPeripheralDelegate {
             print("Error adding service: \(error.localizedDescription)")
             return
         }
-        
+
         // Service was added, now start advertising
         servicesAdded = true
         peripheralManager.startAdvertising([
-                CBAdvertisementDataLocalNameKey: "ProxC User",
+                CBAdvertisementDataLocalNameKey: DisplayNameManager.shared.nameForBLE,
                 CBAdvertisementDataServiceUUIDsKey: [BluetoothConstants.serviceUUID]
             ])
-        
+
         //peripheralManager.startAdvertising(advertisementData)
         print("Started advertising with service UUID: \(BluetoothConstants.serviceUUID.uuidString)")
     }
@@ -1192,6 +1214,8 @@ extension BluetoothManager {
         // Reset status messages so onChange can fire on next connection
         connectionStatusMessage = ""
         responseStatusMessage = ""
+        // Clear connected device name
+        connectedDeviceName = nil
         // Clear messages per ephemeral chat requirement
         messages.removeAll()
     }
@@ -1205,6 +1229,20 @@ extension BluetoothManager {
             stopAdvertising()
             startAdvertising()
         }
+    }
+
+    /// Restarts advertising to pick up any display name changes
+    func restartAdvertisingForNameChange() {
+        if peripheralManager.state == .poweredOn {
+            stopAdvertising()
+            startAdvertising()
+            print("Restarted advertising with updated display name: \(DisplayNameManager.shared.nameForBLE)")
+        }
+    }
+
+    /// Returns the display name for a peripheral, preferring the advertised name over the system name
+    func displayName(for peripheral: CBPeripheral) -> String {
+        return peripheralAdvertisedNames[peripheral.identifier] ?? peripheral.name ?? "Unknown Device"
     }
 }
 
