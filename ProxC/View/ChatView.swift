@@ -20,57 +20,60 @@ struct ChatView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
-            VStack {
-                ScrollView {
-                    VStack(spacing: 10) {
-                        ForEach(bluetoothManager.messages) { message in
-                            MessageBubble(message: message)
-                        }
-                    }
-                }
+        VStack(spacing: 0) {
+            // Custom header - works consistently across iOS versions
+            HStack {
+                Text(chatTitle())
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
 
-                HStack {
-                    TextField("Type a message...", text: $currentMessage)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(minHeight: 30)
+                Spacer()
 
-                    Button(action: sendMessage) {
-                        Image(systemName: "paperplane.fill")
-                            .foregroundColor(.blue)
-                            .padding(.horizontal, 10)
+                Button("End Chat") {
+                    showEndChatConfirmation = true
+                }
+                .foregroundColor(.red)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(Color(UIColor.systemBackground))
+
+            Divider()
+
+            // Messages
+            ScrollView {
+                VStack(spacing: 10) {
+                    ForEach(bluetoothManager.messages) { message in
+                        MessageBubble(message: message)
                     }
                 }
-                .padding()
+                .padding(.top, 8)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    HStack {
-                        Text(chatTitle())
-                            .font(.headline)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                        Spacer()
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("End Chat") {
-                        showEndChatConfirmation = true
-                    }
-                    .foregroundColor(.red)
+
+            // Message input
+            HStack {
+                TextField("Type a message...", text: $currentMessage)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(minHeight: 30)
+
+                Button(action: sendMessage) {
+                    Image(systemName: "paperplane.fill")
+                        .foregroundColor(.blue)
+                        .padding(.horizontal, 10)
                 }
             }
-            .alert("End Chat?", isPresented: $showEndChatConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("End", role: .destructive) {
-                    onEndChatConfirmed?()
-                    dismiss()
-                }
-            } message: {
-                Text("Are you sure you want to end this chat?")
+            .padding()
+        }
+        .background(Color(UIColor.systemBackground))
+        .alert("End Chat?", isPresented: $showEndChatConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("End", role: .destructive) {
+                onEndChatConfirmed?()
+                dismiss()
             }
+        } message: {
+            Text("Are you sure you want to end this chat?")
         }
         .interactiveDismissDisabled(true)  // Prevent swipe-to-dismiss
     }

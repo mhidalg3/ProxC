@@ -569,7 +569,13 @@ class BluetoothManager: NSObject, ObservableObject {
                 currentConversationId = packet.conversationId
                 connectionStatusMessage = "Accepted"
                 awaitingConnectionResponse = false
-                print("Received connection accept for conversation \(packet.conversationId)")
+                // Extract device name from payload if present (sent by peripheral)
+                if let deviceName = String(data: packet.payload, encoding: .utf8), !deviceName.isEmpty {
+                    self.connectedDeviceName = deviceName
+                    print("Received connection accept for conversation \(packet.conversationId), deviceName: \(deviceName)")
+                } else {
+                    print("Received connection accept for conversation \(packet.conversationId)")
+                }
                 DispatchQueue.main.async {
                     NotificationCenter.default.post(name: .chatShouldPresent, object: nil)
                 }
@@ -1090,12 +1096,20 @@ extension BluetoothManager: CBPeripheralDelegate {
     func respondToConnectionRequest(accepted: Bool) {
         let value = accepted ? PacketType.connectionAccept : PacketType.connectionDeny
         responseStatusMessage = accepted ? "Accepted" : "Rejected"
+        // Include display name in accept payload so central can display it
+        let payload: Data
+        if accepted {
+            let displayName = DisplayNameManager.shared.nameForBLE
+            payload = displayName.data(using: .utf8) ?? Data()
+        } else {
+            payload = Data()
+        }
         let packet = Packet(type: value,
                             conversationId: currentConversationId,
                             messageId: 0,
                             fragmentIndex: 0,
                             fragmentCount: 1,
-                            payload: Data())
+                            payload: payload)
         if let characteristic = responseNotifyCharacteristicPeripheral {
             let data = packet.encode()
             var ok = false
